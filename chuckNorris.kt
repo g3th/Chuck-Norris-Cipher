@@ -53,3 +53,6 @@ fun main() {
     val result = chuckNorrisCipherConversion(str.joinToString(separator = ""))
     print("\nThe result:\n${result.trimEnd()}")
 }
+
+//strager's solution golf in Ruby:
+//gets.chomp.bytes.map{|c|"%07b"%c}.join.scan(/0+|1+/).map{|w|(w<?1?"00 ":"0 ")+?0*w.size}*" "

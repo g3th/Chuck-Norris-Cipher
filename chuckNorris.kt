@@ -1,4 +1,5 @@
 import kotlin.math.pow
+import kotlin.system.exitProcess
 
 fun ifTheIndexIsNotOutOfBounds(i: Int, str: String): Boolean{
     return i-1 != -1 && i+1 != str.length
@@ -16,9 +17,7 @@ fun binaryToDecimalToCharConversion(str: String): Char {
     return result.toInt().toChar()
 }
 
-fun cipherStringBinaryConversion(): String{
-    println("Input encoded string:")
-    val str = readln()
+fun cipherStringBinaryConversion(str: String): String{
     var space = 0
     var tempStringStorage = ""
     val splitString = mutableListOf<String>()
@@ -36,6 +35,7 @@ fun cipherStringBinaryConversion(): String{
     }
     var binaryStringResult = ""
     splitString.add(tempStringStorage)
+
     for (i in splitString.indices) {
         if (splitString[i].split(" ")[0] == "0"){
             binaryStringResult += "1".repeat(splitString[i].split(" ")[1].length)
@@ -45,10 +45,9 @@ fun cipherStringBinaryConversion(): String{
     return binaryStringResult
 }
 
-fun binaryConversionForCharCodes(): MutableList<String> {
+fun binaryConversionForCharCodes(str: String): MutableList<String> {
     val input = mutableListOf<String>()
-    println("Input string:")
-    readln().forEach{
+    str.forEach{
         if (Integer.toBinaryString(it.code).length < 7) {
             input.add("0" + Integer.toBinaryString(it.code))
         } else {
@@ -91,17 +90,65 @@ fun chuckNorrisCipherEncryption(str: String): String {
     return cipher
 }
 
-fun main() {
-//    val str = binaryConversionForCharCodes()
-//    val result = chuckNorrisCipherEncryption( str.joinToString(separator = "") )
-//    print("\nThe result:\n${result.trimEnd()}")
-    val a = cipherStringBinaryConversion()
-    var charCodeList = a.chunked(7)
-    println("\nThe result:")
-    for (i in charCodeList){
-        print(binaryToDecimalToCharConversion(i))
-    }
+fun encode(str: String){
+    println("Encoded string:")
+    println(chuckNorrisCipherEncryption(binaryConversionForCharCodes(str).joinToString(separator="")))
 }
 
-//strager's solution golf in Ruby:
-//gets.chomp.bytes.map{|c|"%07b"%c}.join.scan(/0+|1+/).map{|w|(w<?1?"00 ":"0 ")+?0*w.size}*" "
+fun decode(str: String): String{
+    val a = cipherStringBinaryConversion(str)
+    if (a.length % 7 != 0) {
+        return ""
+    }
+    var result = ""
+    val charCodeList = a.chunked(7)
+    for (i in charCodeList){
+        result += binaryToDecimalToCharConversion(i)
+    }
+    return result
+}
+
+fun errorChecking(str: String): Boolean{
+    val strList = str.split(" ").toMutableList()
+    var error = false
+    for (i in strList.indices){
+        if (i % 2 == 0) {
+            error = strList[i].length > 2 || strList.size % 2 != 0
+        }
+    }
+    for (i in strList){
+        for (j in i){
+            if (j != '0'){
+                error = true
+            }
+        }
+    }
+    return error
+}
+fun main() {
+    while(true) {
+        println("Please input operation (encode/decode/exit):")
+        val operation = readln()
+        when {
+            operation == "encode" -> {
+                println("Input string:")
+                val clearInput = readln()
+                encode(clearInput)
+            }
+            operation == "decode" -> {
+                println("Input encoded string:")
+                val encodedInput = readln()
+                if (errorChecking(encodedInput) || decode(encodedInput) == ""){// || decode(encodedInput).length % 7 != 0){
+                    println("Encoded string is not valid.\n")
+                } else {
+                    println("Decoded string:")
+                    println("${decode(encodedInput)} \n")
+                }
+            }
+            operation == "exit" -> {
+                println("Bye!")
+                exitProcess(0)
+            } else -> println("There is no '<input>' operation")
+        }
+    }
+}
